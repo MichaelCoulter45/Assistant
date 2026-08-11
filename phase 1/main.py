@@ -4,6 +4,12 @@ import subprocess
 
 # Paths
 chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+
+
+verbs = ["open", "start", "launch"]
+objects = ["google", "chrome", "firefox", "brave", "opera gx", "opera"]
+
+
 # commands
 def commands(user_input):
     if user_input.strip().lower() == "open chrome":
