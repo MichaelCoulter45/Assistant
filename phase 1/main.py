@@ -1,22 +1,15 @@
 # main.py
-# imports
 import subprocess
-
-
-
-
 
 
 """ ## Current Known Bugs ##
 1. XX user input isn't parsing correctly. Check the two command functions.
-2. Script crashes when inputting an incorrect command or 'q' for missing values.
+2. XX Script crashes when inputting an incorrect command or 'q' for missing values.
 3. XX The only command now opens chrome despite naming firefox or others in objects[]
 """
 
-
-user_verb = "None"
-user_object = "None"
 hotkey_quit = 'q'
+
 # Settings
 active = True
 
@@ -27,11 +20,11 @@ PATH_CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 verbs = ["open", "start", "launch"]
 objects = ["google", "chrome", "firefox", "brave", "opera gx", "opera"]
 
-
+###############
 def toggle_active():
     global active
     active = not active
-
+###############
 
 def process_user_input(user_input, verbs=verbs, objects=objects):
     """ 
@@ -41,19 +34,14 @@ def process_user_input(user_input, verbs=verbs, objects=objects):
     """
     # The user's command is already normalized and split, so we can work with it now.
     if len(user_input) >= 2:
-        for _ in range(len(verbs)):
-            if user_input[0] == verbs[_]:
-                user_verb = user_input[0]
-            else:
-                user_verb = "None"
-                
-        for _ in range(len(objects)):
-            if user_input[1] == objects[_]:
-                user_object = user_input[1]
-            else:
-                user_object = "None"
+        if user_input[0] in verbs:
+            user_verb = user_input[0]
+        if user_input[1] in objects:
+            user_object = user_input[1]
     else:
-        print(f"Can you expand on '{user_input}'?")
+        print(f"Can you expand on {user_input}?\n")
+        user_verb, user_object = None, None
+        return user_verb, user_object
     # end of function
     return user_verb, user_object
 
@@ -66,29 +54,28 @@ def commands(user_verb, user_object):
             subprocess.Popen([PATH_CHROME])
         
         else:
-            print(f"Error. Unknown command: '{user_verb} {user_object}'\n")
-    else:
-        print(f"Error. Unknown command: '{user_verb} {user_object}'\n")
+            print(f"Error: Unknown command: '{user_verb} {user_object}'\n")
 
 
 def ask_for_command():
         print(f"What can I do for you today? [Enter 'Q' to quit.]")
         user_input = input()
         user_input = user_input.strip().lower().split()
+        
         if user_input[0] == hotkey_quit and len(user_input) == 1:
             return toggle_active()
+        
         user_verb, user_object = process_user_input(user_input)
         commands(user_verb, user_object)
         
 
-
+####################
 # main()
 def main():
     print(f"\nHello!")
     while active:
         ask_for_command()
-    print(f"\nGoodbye!")
-    print()
+    print(f"\nGoodbye!\n")
     #end of main()
 if __name__ == "__main__":
     main()
