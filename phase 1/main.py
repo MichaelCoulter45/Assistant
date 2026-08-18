@@ -1,5 +1,7 @@
 # main.py
 import subprocess
+import shutil
+import os
 
 
 """ ## Current Known Bugs ##
@@ -26,6 +28,8 @@ def toggle_active():
     active = not active
 ###############
 
+
+# Finding Apps and opening them.
 def process_user_input(user_input, verbs=verbs, objects=objects):
     """ 
     The point of this function is to roll through the user's command to find the verb and object to dynamically
@@ -46,16 +50,29 @@ def process_user_input(user_input, verbs=verbs, objects=objects):
     return user_verb, user_object
 
 
-# commands
 def commands(user_verb, user_object):
     if user_verb and user_object:
         if user_verb in verbs and user_object == "chrome":
             print(f"Executing: '{user_verb} {user_object}'\n")
-            subprocess.Popen([PATH_CHROME])
+            target_app = find_application(user_object)
+            subprocess.Popen([target_app])
         
         else:
             print(f"Error: Unknown command: '{user_verb} {user_object}'\n")
 
+
+def find_application(user_object): #### Currently searches entire drive. Takes too long...
+    """Finds the application the user is looking to open."""
+    path = shutil.which(user_object)
+    if path:
+        return path
+    else:
+        for root, dirs, files in os.walk("C://"):
+            if user_object in files:
+                path = os.path.join(root, user_object)
+                return path
+    return None
+        
 
 def ask_for_command():
         print(f"What can I do for you today? [Enter 'Q' to quit.]")
@@ -76,6 +93,10 @@ def main():
     while active:
         ask_for_command()
     print(f"\nGoodbye!\n")
+    # Debugging
+    print("Shutil: ", shutil.which("chrome.exe"))
+    print("Shutil: ", shutil.which("python.exe"))
+
     #end of main()
 if __name__ == "__main__":
     main()
