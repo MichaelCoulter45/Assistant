@@ -8,6 +8,7 @@ import os
 1. XX user input isn't parsing correctly. Check the two command functions.
 2. XX Script crashes when inputting an incorrect command or 'q' for missing values.
 3. XX The only command now opens chrome despite naming firefox or others in objects[]
+4. Currently only hard coded objects are supported. Fix it to make dynamic.
 """
 
 hotkey_quit = 'q'
@@ -50,29 +51,18 @@ def process_user_input(user_input, verbs=verbs, objects=objects):
     return user_verb, user_object
 
 
-def commands(user_verb, user_object):
-    if user_verb and user_object:
-        if user_verb in verbs and user_object == "chrome":
-            print(f"Executing: '{user_verb} {user_object}'\n")
-            target_app = find_application(user_object)
-            subprocess.Popen([target_app])
-        
-        else:
-            print(f"Error: Unknown command: '{user_verb} {user_object}'\n")
-
-
 def find_application(user_object): #### Currently searches entire drive. Takes too long...
     """Finds the application the user is looking to open."""
     path = shutil.which(user_object)
     if path:
         return path
-    else:
-        for root, dirs, files in os.walk("C://"):
-            if user_object in files:
-                path = os.path.join(root, user_object)
-                return path
-    return None
-        
+    
+    # Last Resort: Walk the whole C:\ drive to find the target.
+    for root, dirs, files in os.walk(r"C:\\"):
+        if (user_object + ".exe") in files:
+            path = os.path.join(root, user_object + ".exe")
+    return path
+
 
 def ask_for_command():
         print(f"What can I do for you today? [Enter 'Q' to quit.]")
@@ -86,6 +76,18 @@ def ask_for_command():
         commands(user_verb, user_object)
         
 
+
+def commands(user_verb, user_object):
+    if user_verb and user_object:
+        if user_verb in verbs and user_object == "chrome":
+            print(f"Executing: '{user_verb} {user_object}'\n")
+            target_app = find_application(user_object)
+            if target_app:
+                subprocess.Popen([target_app])
+            else:
+                print(f"Cannot find {user_object}.\n")
+        else:
+            print(f"Error: Unknown command: '{user_verb} {user_object}'\n")
 ####################
 # main()
 def main():
