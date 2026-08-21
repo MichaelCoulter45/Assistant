@@ -72,39 +72,52 @@ def find_application(user_object): #### Currently searches entire drive. Takes t
         return path
     
     home_dir = Path.home()
+    search_likely_directories = [r"C:\Program Files", 
+                                 r"C:\Program Files (x86)", 
+                                 fr"{home_dir}\AppData\Local", 
+                                 r"C:\\",
+                                 ]
     user_object = user_object + ".exe"
     
-    # Search likely locations first: \Program Files, \Program Files (x86), and ...\Local
-    # C:\Program Files
-    for root, dirs, files in os.walk(r"C:\Program Files"): 
-        if user_object in files:
-            path = os.path.join(root, user_object)
-            return path
+    # Search loop using 
+    for word in search_likely_directories:
+        for root, dirs, files in os.walk(word):
+            if user_object in files:
+                path = os.path.join(root, user_object)
+                return path
     
-    # C:\Program Files (x86)
-    for root, dirs, files in os.walk(r"C:\Program Files (x86)"): 
-        if user_object in files:
-            path = os.path.join(root, user_object)
-            return path
     
-    # ...\Appdata\Local
-    for root, dirs, files in os.walk({str(home_dir)}+"\AppData\Local"): # <-------------------- This line
-        if user_object in files:
-            path = os.path.join(root, user_object)
-            return path
+    # Search likely locations first:
+    # # C:\Program Files
+    # for root, dirs, files in os.walk(r"C:\Program Files"): 
+    #     if user_object in files:
+    #         path = os.path.join(root, user_object)
+    #         return path
     
-    # Last Resort: Walk the whole C:\ drive to find the target.
-    for root, dirs, files in os.walk(r"C:\\"):
-        if user_object in files:
-            path = os.path.join(root, user_object)
-            return path
+    # # C:\Program Files (x86)
+    # for root, dirs, files in os.walk(r"C:\Program Files (x86)"): 
+    #     if user_object in files:
+    #         path = os.path.join(root, user_object)
+    #         return path
+    
+    # # ...\Appdata\Local
+    # for root, dirs, files in os.walk(f"{home_dir}"+"\AppData\Local"): # <-------------------- This line
+    #     if user_object in files:
+    #         path = os.path.join(root, user_object)
+    #         return path
+    
+    # # Last Resort: Walk the whole C:\ drive to find the target.
+    # for root, dirs, files in os.walk(r"C:\\"):
+    #     if user_object in files:
+    #         path = os.path.join(root, user_object)
+    #         return path
     return path
 
 
 def ask_for_command():
         print(f"What can I do for you today? [Enter 'Q' to quit.]")
         user_input = input()
-        user_input = user_input.strip().lower().split()
+        user_input = user_input.strip().split()
         
         if user_input[0] == hotkey_quit and len(user_input) == 1:
             return toggle_active()
@@ -120,6 +133,7 @@ def commands(user_verb, user_object):
         print(f"Executing: '{user_verb} {user_object}'\n")
         target_app = find_application(user_object)
         if target_app:
+            print(target_app)
             subprocess.Popen([target_app])
         else:
             print(f"Cannot find {user_object}.\n")
