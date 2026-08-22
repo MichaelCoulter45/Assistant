@@ -2,6 +2,7 @@
 import subprocess
 import shutil
 import os
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -10,13 +11,20 @@ from pathlib import Path
 1. XX user input isn't parsing correctly. Check the two command functions.
 2. XX Script crashes when inputting an incorrect command or 'q' for missing values.
 3. XX The only command now opens chrome despite naming firefox or others in objects[]
-4. Currently only hard coded objects are supported. Fix it to make dynamic.
+4. XX Currently only hard coded objects are supported. Fix it to make dynamic.
+5. Caching is vulnerable to rewritting.
 """
 ###
-""" 
-Things to do:
-1. Make it so only the first word in user_input is the verb, and the rest is the object.
-2. Update process_user_input(). 
+""" ## Things to do: ##
+1. XX Make it so only the first word in user_input is the verb, and the rest is the object.
+2. XX Update process_user_input(). 
+3. Update find_application() to return a tuple for safe caching!
+4. Add any and all drives to the search.
+5. Add option to target search a drive/directory.
+6. Add more likely directories.
+
+
+... After enabling speak to text, Add "Hey Jarvis, ..." for the program to listen to the command, ignoring everything else to prevent accidental commands. 
 """
 
 
@@ -65,26 +73,26 @@ def process_user_input(user_input, verbs=verbs):
     return user_verb, user_object[len(user_verb):].strip()
 
 
-def find_application(user_object): #### Currently searches entire drive. Takes too long...
-    """Finds the application the user is looking to open."""
+@lru_cache
+def find_application(user_object):
+    """Searches some likely directories first, then the whole C drive."""
     path = shutil.which(user_object)
-    if path:
-        return path
-    
-    home_dir = Path.home()
-    search_likely_directories = [r"C:\Program Files", 
-                                 r"C:\Program Files (x86)", 
-                                 fr"{home_dir}\AppData\Local", 
-                                 r"C:\\",
-                                 ]
     user_object = user_object + ".exe"
+    home_dir = Path.home()
+    likely_directories = [r"C:\Program Files (x86)", 
+                                 r"C:\Program Files",
+                                 f"{home_dir}"
+                                 ]
     
-    # Search loop using 
-    for word in search_likely_directories:
-        for root, dirs, files in os.walk(word):
+    # Search loop using likely directories and then the whole drive
+    for directory in likely_directories:
+        if path:
+            break
+        for root, dirs, files in os.walk(directory):
+            # print(root, dirs, files) # Debugging
             if user_object in files:
                 path = os.path.join(root, user_object)
-                return path
+                break
     
     
     # Search likely locations first:
@@ -133,7 +141,7 @@ def commands(user_verb, user_object):
         print(f"Executing: '{user_verb} {user_object}'\n")
         target_app = find_application(user_object)
         if target_app:
-            print(target_app)
+            print(target_app) # Debugging
             subprocess.Popen([target_app])
         else:
             print(f"Cannot find {user_object}.\n")
@@ -146,10 +154,11 @@ def main():
     while active:
         ask_for_command()
     print(f"\nGoodbye!\n")
+    
     # Debugging
     # print("Shutil: ", shutil.which("chrome.exe"))
     # print("Shutil: ", shutil.which("python.exe"))
-
     #end of main()
 if __name__ == "__main__":
     main()
+    
