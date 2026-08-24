@@ -22,6 +22,8 @@ from pathlib import Path
 4. Add any and all drives to the search.
 5. Add option to target search a drive/directory.
 6. Add more likely directories.
+7. Replace lru_cache with a saved to disk cache system.
+8. Add layer to Caching system in-case the cache path is no longer existing. ie) reinstall a program
 
 
 ... After enabling speak to text, Add "Hey Jarvis, ..." for the program to listen to the command, ignoring everything else to prevent accidental commands. 
