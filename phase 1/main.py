@@ -95,32 +95,6 @@ def find_application(user_object):
             if user_object in files:
                 path = os.path.join(root, user_object)
                 break
-    
-    
-    # Search likely locations first:
-    # # C:\Program Files
-    # for root, dirs, files in os.walk(r"C:\Program Files"): 
-    #     if user_object in files:
-    #         path = os.path.join(root, user_object)
-    #         return path
-    
-    # # C:\Program Files (x86)
-    # for root, dirs, files in os.walk(r"C:\Program Files (x86)"): 
-    #     if user_object in files:
-    #         path = os.path.join(root, user_object)
-    #         return path
-    
-    # # ...\Appdata\Local
-    # for root, dirs, files in os.walk(f"{home_dir}"+"\AppData\Local"): # <-------------------- This line
-    #     if user_object in files:
-    #         path = os.path.join(root, user_object)
-    #         return path
-    
-    # # Last Resort: Walk the whole C:\ drive to find the target.
-    # for root, dirs, files in os.walk(r"C:\\"):
-    #     if user_object in files:
-    #         path = os.path.join(root, user_object)
-    #         return path
     return path
 
 
@@ -134,7 +108,6 @@ def ask_for_command():
         
         user_verb, user_object = process_user_input(user_input)
         commands(user_verb, user_object)
-        
 
 
 def commands(user_verb, user_object):
@@ -143,7 +116,7 @@ def commands(user_verb, user_object):
         print(f"Executing: '{user_verb} {user_object}'\n")
         target_app = find_application(user_object)
         if target_app:
-            print(target_app) # Debugging
+            # print(target_app) # Debugging
             subprocess.Popen([target_app])
         else:
             print(f"Cannot find {user_object}.\n")
@@ -160,6 +133,7 @@ def main():
     # Debugging
     # print("Shutil: ", shutil.which("chrome.exe"))
     # print("Shutil: ", shutil.which("python.exe"))
+    
     #end of main()
 if __name__ == "__main__":
     main()
