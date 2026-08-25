@@ -12,37 +12,30 @@ from pathlib import Path
 2. XX Script crashes when inputting an incorrect command or 'q' for missing values.
 3. XX The only command now opens chrome despite naming firefox or others in objects[]
 4. XX Currently only hard coded objects are supported. Fix it to make dynamic.
-5. Caching is vulnerable to rewritting.
+5. Caching is vulnerable to becoming stale if the file is moved, uninstalled, or reinstalled.
 """
 ###
 """ ## Things to do: ##
 1. XX Make it so only the first word in user_input is the verb, and the rest is the object.
 2. XX Update process_user_input(). 
-3. Update find_application() to return a tuple for safe caching!
+3. Improve Cache application-path validation.
 4. Add any and all drives to the search.
 5. Add option to target search a drive/directory.
 6. Add more likely directories.
 7. Replace lru_cache with a saved to disk cache system.
 8. Add layer to Caching system in-case the cache path is no longer existing. ie) reinstall a program
-
+9. Make a safe guard for when the user inputs nothing or " ", where user_input[0] doesn't exist.
 
 ... After enabling speak to text, Add "Hey Jarvis, ..." for the program to listen to the command, ignoring everything else to prevent accidental commands. 
 """
 
 
-
+# Hotkeys
 hotkey_quit = 'q'
 
 # Settings
 active = True
-
-# Paths
-PATH_CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-
-
 verbs = ["open", "start", "launch"]
-# objects = ["google", "chrome", "firefox", "brave", "opera gx", "opera"]
-
 ###############
 def toggle_active():
     global active
@@ -75,6 +68,7 @@ def process_user_input(user_input, verbs=verbs):
     return user_verb, user_object[len(user_verb):].strip()
 
 
+
 @lru_cache
 def find_application(user_object):
     """Searches some likely directories first, then the whole C drive."""
@@ -82,11 +76,11 @@ def find_application(user_object):
     user_object = user_object + ".exe"
     home_dir = Path.home()
     likely_directories = [r"C:\Program Files (x86)", 
-                                 r"C:\Program Files",
-                                 f"{home_dir}"
-                                 ]
-    
+                            r"C:\Program Files",
+                            f"{home_dir}"
+                            ]
     # Search loop using likely directories and then the whole drive
+    # if cache is stale or doesn't exist:
     for directory in likely_directories:
         if path:
             break
@@ -116,7 +110,7 @@ def commands(user_verb, user_object):
         print(f"Executing: '{user_verb} {user_object}'\n")
         target_app = find_application(user_object)
         if target_app:
-            # print(target_app) # Debugging
+            print(target_app) # Debugging
             subprocess.Popen([target_app])
         else:
             print(f"Cannot find {user_object}.\n")
@@ -130,11 +124,6 @@ def main():
         ask_for_command()
     print(f"\nGoodbye!\n")
     
-    # Debugging
-    # print("Shutil: ", shutil.which("chrome.exe"))
-    # print("Shutil: ", shutil.which("python.exe"))
-    
     #end of main()
 if __name__ == "__main__":
     main()
-    
