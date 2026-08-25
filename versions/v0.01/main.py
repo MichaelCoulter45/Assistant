@@ -87,6 +87,7 @@ def find_application(user_object):
                                  ]
     
     # Search loop using likely directories and then the whole drive
+    # if cache is stale or doesn't exist:
     for directory in likely_directories:
         if path:
             break
