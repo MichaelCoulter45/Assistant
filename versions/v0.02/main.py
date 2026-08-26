@@ -50,22 +50,23 @@ def process_user_input(user_input, verbs=verbs):
     call the correct command instead of hard-coding each possible command with if-statements.
     * This is currently assuming the user's command is specifically two words.
     """
-    user_object = ""
+    user_verb, user_object = "", ""
     # The user's command is already normalized and split, so we can work with it now.
     if len(user_input) >= 2:
         if user_input[0] in verbs:
             user_verb = user_input[0]
         
-        # All other words in user's input is the object.
-        for word in user_input:
-            user_object += word + " "
+            # All other words in user's input is the object.
+            for word in user_input:
+                if user_verb != word:
+                    user_object.join(word + " ")
         
     else:
         print(f"Can you expand on {user_input}?\n")
         user_verb, user_object = None, None
         return user_verb, user_object
     # end of function
-    return user_verb, user_object[len(user_verb):].strip()
+    return user_verb, user_object.strip()
 
 
 
