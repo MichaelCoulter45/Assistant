@@ -35,7 +35,10 @@ hotkey_quit = 'q'
 
 # Settings
 active = True
-verbs = ["open", "start", "launch"]
+
+# Commands
+command_execute = ["open", "start", "launch"]
+command_terminate = ["close", "kill", "terminate", "exit"]
 ###############
 def toggle_active():
     global active
@@ -43,27 +46,58 @@ def toggle_active():
 ###############
 
 
-# Finding Apps and opening them.
-def process_user_input(user_input, verbs=verbs):
+
+
+
+###################################
+###################################
+def ask_for_command():
+    print(f"\nWhat can I do for you today? [Enter 'Q' to quit.]")
+    user_input = input()
+    user_input = user_input.strip().split()
+    
+    if user_input[0] == hotkey_quit and len(user_input) == 1:
+        return toggle_active()
+    
+    user_verb, user_object = process_user_input(user_input)
+    intent = find_user_intent(user_verb)
+    dispatch(intent, user_object)
+###################################
+def process_user_input(user_input):
     """ 
-    The point of this function is to roll through the user's command to find the verb and object to dynamically
-    call the correct command instead of hard-coding each possible command with if-statements.
-    * This is currently assuming the user's command is specifically two words.
+    Returns an action and the target object from the user's input.
     """
     
     # All other words in user's input is the object.
-    user_verb, *rest_of_list = user_input
-    user_object = " ".join(rest_of_list)
-            
+    action, *rest_of_list = user_input
+    target_object = " ".join(rest_of_list)
+    
     if len(user_input) < 2:
         print(f"Can you expand on {user_input}?\n")
-        return user_verb, user_object
+        return action, target_object
     
     # end of function
-    return user_verb, user_object
-
-
-
+    return action, target_object
+###################################
+def find_user_intent(user_verb):
+    for user_verb in command_execute:
+        intent = {user_verb: open_application}
+    for user_verb in command_terminate:
+        intent = {user_verb: close_application}
+    return intent
+###################################
+def dispatch(intent, user_object): # <---------------------------------------- what are we doing with dispatch and find_user_intent?
+    if user_object:
+        # if user_verb in command_execute:
+        #     open_application(user_object)
+        # elif user_verb in command_terminate:
+        #     close_application(user_verb, user_object)
+        # else:
+        #     print(f"Error: Unknown command: '{user_verb}'\n")
+    else:
+        print(f"Error: No object given.")
+###################################
+###################################
 @lru_cache
 def find_application(user_object):
     """Searches some likely directories first, then the whole C drive."""
@@ -75,7 +109,6 @@ def find_application(user_object):
                             f"{home_dir}"
                             ]
     # Search loop using likely directories and then the whole drive
-    # if cache is stale or doesn't exist:
     for directory in likely_directories:
         if path:
             break
@@ -85,33 +118,20 @@ def find_application(user_object):
                 path = os.path.join(root, user_object)
                 break
     return path
-
-
-def ask_for_command():
-        print(f"What can I do for you today? [Enter 'Q' to quit.]")
-        user_input = input()
-        user_input = user_input.strip().split()
-        
-        if user_input[0] == hotkey_quit and len(user_input) == 1:
-            return toggle_active()
-        
-        user_verb, user_object = process_user_input(user_input)
-        commands(user_verb, user_object)
-
-
-def commands(user_verb, user_object):
-    if user_verb in verbs and user_object:
-        # if user_verb in verbs and user_object == "chrome":
-        print(f"Executing: '{user_verb} {user_object}'\n")
-        target_app = find_application(user_object)
-        if target_app:
-            print(f"Found at: {target_app}") # Debugging
-            subprocess.Popen([target_app])
-        else:
-            print(f"Cannot find: {user_object}.\n")
+###################################
+def open_application(user_verb, user_object):
+    print(f"Executing: '{user_verb} {user_object}'\n")
+    target_app = find_application(user_object)
+    if target_app:
+        print(f"Found at: {target_app}") # Debugging
+        subprocess.Popen([target_app])
     else:
-        print(f"Error: Unknown command: '{user_verb}'\n")
-####################
+        print(f"Cannot find: {user_object}.\n")
+###################################
+def close_application(user_verb, user_object):
+    print(f"{user_verb}ing {user_object}...")
+###################################
+###################################
 # main()
 def main():
     print(f"\nHello!")
