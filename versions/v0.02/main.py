@@ -50,23 +50,17 @@ def process_user_input(user_input, verbs=verbs):
     call the correct command instead of hard-coding each possible command with if-statements.
     * This is currently assuming the user's command is specifically two words.
     """
-    user_verb, user_object = "", ""
-    # The user's command is already normalized and split, so we can work with it now.
-    if len(user_input) >= 2:
-        if user_input[0] in verbs:
-            user_verb = user_input[0]
-        
-            # All other words in user's input is the object.
-            for word in user_input:
-                if user_verb != word:
-                    user_object.join(word + " ")
-        
-    else:
+    
+    # All other words in user's input is the object.
+    user_verb, *rest_of_list = user_input
+    user_object = " ".join(rest_of_list)
+            
+    if len(user_input) < 2:
         print(f"Can you expand on {user_input}?\n")
-        user_verb, user_object = None, None
         return user_verb, user_object
+    
     # end of function
-    return user_verb, user_object.strip()
+    return user_verb, user_object
 
 
 
@@ -106,17 +100,17 @@ def ask_for_command():
 
 
 def commands(user_verb, user_object):
-    if user_verb and user_object:
+    if user_verb in verbs and user_object:
         # if user_verb in verbs and user_object == "chrome":
         print(f"Executing: '{user_verb} {user_object}'\n")
         target_app = find_application(user_object)
         if target_app:
-            print(target_app) # Debugging
+            print(f"Found at: {target_app}") # Debugging
             subprocess.Popen([target_app])
         else:
-            print(f"Cannot find {user_object}.\n")
+            print(f"Cannot find: {user_object}.\n")
     else:
-        print(f"Error: Unknown command: '{user_verb} {user_object}'\n")
+        print(f"Error: Unknown command: '{user_verb}'\n")
 ####################
 # main()
 def main():
