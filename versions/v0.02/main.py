@@ -80,20 +80,24 @@ def process_user_input(user_input):
     return action, target_object
 ###################################
 def find_user_intent(user_verb):
-    for user_verb in command_execute:
-        intent = {user_verb: open_application}
-    for user_verb in command_terminate:
-        intent = {user_verb: close_application}
-    return intent
+    intent_map = {}
+    for word in command_execute:
+        intent_map[word] = "OPEN_APPLICATION"
+    for word in command_terminate:
+        intent_map[word] = "CLOSE_APPLICATION"
+    
+    matched_intent = intent_map.get(user_verb, "Unknown Intent")
+    print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}")
+    return matched_intent
 ###################################
-def dispatch(intent, user_object): # <---------------------------------------- what are we doing with dispatch and find_user_intent?
+def dispatch(user_verb, user_object): # <---------------------------------------- what are we doing with dispatch and find_user_intent?
     if user_object:
-        # if user_verb in command_execute:
-        #     open_application(user_object)
-        # elif user_verb in command_terminate:
-        #     close_application(user_verb, user_object)
-        # else:
-        #     print(f"Error: Unknown command: '{user_verb}'\n")
+        if user_verb in command_execute:
+            open_application(user_object)
+        elif user_verb in command_terminate:
+            close_application(user_verb, user_object)
+        else:
+            print(f"Error: Unknown command: '{user_verb}'\n")
     else:
         print(f"Error: No object given.")
 ###################################
@@ -119,8 +123,8 @@ def find_application(user_object):
                 break
     return path
 ###################################
-def open_application(user_verb, user_object):
-    print(f"Executing: '{user_verb} {user_object}'\n")
+def open_application(user_object):
+    print(f"Executing: '{user_object}'\n")
     target_app = find_application(user_object)
     if target_app:
         print(f"Found at: {target_app}") # Debugging
