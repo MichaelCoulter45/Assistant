@@ -87,7 +87,7 @@ def find_user_intent(user_verb):
         intent_map[word] = "CLOSE_APPLICATION"
     
     matched_intent = intent_map.get(user_verb, "Unknown Intent")
-    print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}")
+    print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
     return matched_intent
 ###################################
 def dispatch(user_verb, user_object): # <---------------------------------------- what are we doing with dispatch and find_user_intent?
