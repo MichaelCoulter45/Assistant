@@ -126,7 +126,7 @@ def close_application(user_object):
 def open_path(target):
     target_path = find_path(target)
     if target_path:
-        subprocess.Popen(target_path)
+        os.startfile(target_path)
     else:
         print(f"Cannot find {target}.")
 ###################################
@@ -134,8 +134,9 @@ def open_path(target):
 #Registry / Maps
 intent_map = { # Key-Word : Intent
     # Application Commands
-    "open":"OPEN_PATH",
+    "find":"OPEN_PATH", # <----------------------------- find should just return a path if found... Find another word for open_path. 
     
+    "open":"OPEN_APPLICATION",
     "start":"OPEN_APPLICATION",
     "launch":"OPEN_APPLICATION",
     
