@@ -36,9 +36,6 @@ hotkey_quit = 'q'
 # Settings
 active = True
 
-# Commands
-command_execute = ["open", "start", "launch"]
-command_terminate = ["close", "kill", "terminate", "exit", "quit"]
 ###############
 def toggle_active():
     global active
@@ -75,7 +72,7 @@ def process_user_input(user_input):
     target_object = " ".join(rest_of_list)
     
     if len(user_input) < 2:
-        print(f"Can you expand on {user_input}?\n")
+        print(f"What do you mean by '{user_input}'?\n")
         return action, target_object
     
     # end of function
@@ -87,7 +84,6 @@ def find_user_intent(user_verb):
     return matched_intent
 ###################################
 def dispatch(intent, user_object): 
-    
     if intent in command_map:
         command_map[intent](user_object)
     else:
@@ -129,15 +125,26 @@ def close_application(user_object):
 ###################################
 ###################################
 #Registry / Maps
-intent_map = {}
-for word in command_execute:
-    intent_map[word] = "OPEN_APPLICATION"
-for word in command_terminate:
-    intent_map[word] = "CLOSE_APPLICATION"
+intent_map = { # Key-Word : Intent
+    # Application Commands
+    "open":"OPEN_APPLICATION",
+    "start":"OPEN_APPLICATION",
+    "launch":"OPEN_APPLICATION",
+    
+    "close":"CLOSE_APPLICATION",
+    "kill":"CLOSE_APPLICATION",
+    "terminate":"CLOSE_APPLICATION",
+    "exit":"CLOSE_APPLICATION",
+    "quit":"CLOSE_APPLICATION",
+    
+    # Jarvis Commands
+    f"{hotkey_quit}":"QUIT_JARVIS"
+            }
 
-command_map = {
+command_map = { # Intent : Command
     "OPEN_APPLICATION":open_application,
     "CLOSE_APPLICATION":close_application,
+    "QUIT_JARVIS":toggle_active,
             }
 ###################################
 ###################################
