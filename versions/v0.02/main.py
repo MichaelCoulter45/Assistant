@@ -55,13 +55,15 @@ def ask_for_command():
     print(f"\nWhat can I do for you today? [Enter 'Q' to quit.]")
     user_input = input()
     user_input = user_input.strip().split()
-    
-    if user_input[0] == hotkey_quit and len(user_input) == 1:
-        return toggle_active()
-    
-    user_verb, user_object = process_user_input(user_input)
-    intent = find_user_intent(user_verb)
-    dispatch(intent, user_object)
+    if user_input:
+        if user_input[0] == hotkey_quit and len(user_input) == 1:
+            return toggle_active()
+        
+        user_verb, user_object = process_user_input(user_input)
+        intent = find_user_intent(user_verb)
+        dispatch(intent, user_object)
+    else:
+        print(f"You didn't enter anything..")
 ###################################
 def process_user_input(user_input):
     """ 
@@ -90,16 +92,15 @@ def find_user_intent(user_verb):
     print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
     return matched_intent
 ###################################
-def dispatch(user_verb, user_object): # <---------------------------------------- what are we doing with dispatch and find_user_intent?
-    if user_object:
-        if user_verb in command_execute:
-            open_application(user_object)
-        elif user_verb in command_terminate:
-            close_application(user_verb, user_object)
-        else:
-            print(f"Error: Unknown command: '{user_verb}'\n")
+def dispatch(intent, user_object): 
+    intent_map = { # Function registry
+        "OPEN_APPLICATION":open_application,
+        "CLOSE_APPLICATION":close_application,
+                }
+    if intent in intent_map:
+        intent_map[intent](user_object)
     else:
-        print(f"Error: No object given.")
+        print(f"I don't understand what you're trying to do.")
 ###################################
 ###################################
 @lru_cache
@@ -132,8 +133,8 @@ def open_application(user_object):
     else:
         print(f"Cannot find: {user_object}.\n")
 ###################################
-def close_application(user_verb, user_object):
-    print(f"{user_verb}ing {user_object}...")
+def close_application(user_object):
+    print(f"Closing {user_object}...")
 ###################################
 ###################################
 # main()
