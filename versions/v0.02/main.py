@@ -24,7 +24,7 @@ from pathlib import Path
 6. Add more likely directories.
 7. Replace lru_cache with a saved to disk cache system.
 8. Add layer to Caching system in-case the cache path is no longer existing. ie) reinstall a program
-9. Make a safe guard for when the user inputs nothing or " ", where user_input[0] doesn't exist.
+9. XX Make a safe guard for when the user inputs nothing or " ", where user_input[0] doesn't exist.
 
 ... After enabling speak to text, Add "Hey Jarvis, ..." for the program to listen to the command, ignoring everything else to prevent accidental commands. 
 """
@@ -38,7 +38,7 @@ active = True
 
 # Commands
 command_execute = ["open", "start", "launch"]
-command_terminate = ["close", "kill", "terminate", "exit"]
+command_terminate = ["close", "kill", "terminate", "exit", "quit"]
 ###############
 def toggle_active():
     global active
@@ -82,23 +82,14 @@ def process_user_input(user_input):
     return action, target_object
 ###################################
 def find_user_intent(user_verb):
-    intent_map = {}
-    for word in command_execute:
-        intent_map[word] = "OPEN_APPLICATION"
-    for word in command_terminate:
-        intent_map[word] = "CLOSE_APPLICATION"
-    
     matched_intent = intent_map.get(user_verb, "Unknown Intent")
     print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
     return matched_intent
 ###################################
 def dispatch(intent, user_object): 
-    intent_map = { # Function registry
-        "OPEN_APPLICATION":open_application,
-        "CLOSE_APPLICATION":close_application,
-                }
-    if intent in intent_map:
-        intent_map[intent](user_object)
+    
+    if intent in command_map:
+        command_map[intent](user_object)
     else:
         print(f"I don't understand what you're trying to do.")
 ###################################
@@ -135,6 +126,19 @@ def open_application(user_object):
 ###################################
 def close_application(user_object):
     print(f"Closing {user_object}...")
+###################################
+###################################
+#Registry / Maps
+intent_map = {}
+for word in command_execute:
+    intent_map[word] = "OPEN_APPLICATION"
+for word in command_terminate:
+    intent_map[word] = "CLOSE_APPLICATION"
+
+command_map = {
+    "OPEN_APPLICATION":open_application,
+    "CLOSE_APPLICATION":close_application,
+            }
 ###################################
 ###################################
 # main()
