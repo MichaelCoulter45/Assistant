@@ -62,7 +62,7 @@ def ask_for_command():
     else:
         print(f"You didn't enter anything..")
 ###################################
-def process_user_input(user_input):
+def process_user_input(user_input: str):
     """ 
     Returns an action and the target object from the user's input.
     """
@@ -78,12 +78,12 @@ def process_user_input(user_input):
     # end of function
     return action, target_object
 ###################################
-def find_user_intent(user_verb):
+def find_user_intent(user_verb: str) -> str:
     matched_intent = intent_map.get(user_verb, "Unknown Intent")
     # print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
     return matched_intent
 ###################################
-def dispatch(intent, user_object): 
+def dispatch(intent: str, user_object: str): 
     if user_object:
         if intent in command_map:
             command_map[intent](user_object)
@@ -94,7 +94,7 @@ def dispatch(intent, user_object):
 ###################################
 ###################################
 @lru_cache
-def find_path(user_object):
+def find_path(user_object: str) -> str:
     """Searches some likely directories first, then the whole C drive."""
     path = shutil.which(user_object)
     home_dir = Path.home()
@@ -115,7 +115,7 @@ def find_path(user_object):
         print(f"Found {user_object} at: ", path)
     return path
 ###################################
-def open_application(user_object):
+def open_application(user_object: str):
     print(f"Executing: '{user_object}'\n")
     user_object = user_object + ".exe"
     target_app = find_path(user_object)
@@ -128,12 +128,44 @@ def open_application(user_object):
 def close_application(user_object):
     print(f"Closing {user_object}...")
 ###################################
-def open_path(target):
+def open_target(target: str):
+    """ Launches the default app of the target regaurdless of file type and directory. """
     target_path = find_path(target)
-    # If directory, open it in file explorer
-    # If .exe, launch the exe
+    
+    candidates = []
+    for item in target_path.glob(f"{target}*"):
+        if item.is_dir() and item.name.lower() == target:
+            candidates.append(item)
+        elif item.is_file() and item.stem.lower() == target:
+            candidates.append(item)
+    
+    # No matches
+    if not candidates:
+        print(f"Cannot find {target}")
+        return None
+    
+    # One match.
+    if len(candidates) == 1:
+        return candidates[0]
+    
+    # Multiple files found.
+    print(f"\nMultiple matches found for {target}:")
+    for idx, match in enumerate(candidates, start=1):
+        item_type = "Folder" if match.is_dir() else f"File ({match.suffix})"
+        print(f"  [{idx}] {match.name} --> {item_type}")
+    
+    choice = input(f"Which one do you want to open? (1-{len(candidates)}): ")
+    try:
+        selected_index = int(choice) - 1
+        return candidates[selected_index]
+    except (ValueError, IndexError):
+        print("Invalid selecetion.")
+        return None
+    
+    
+    
     if target_path:
-        os.startfile(target_path)
+        os.startfile(target_path) #Startfile opens the file or directory with the default app for the file type.
     else:
         print(f"Cannot find {target}.")
 ###################################
@@ -160,7 +192,7 @@ intent_map = { # Key-Word : Intent
 
 command_map = { # Intent : Command
     "FIND_PATH":find_path,
-    "OPEN_PATH":open_path,
+    "OPEN_PATH":open_target,
     "OPEN_APPLICATION":open_application,
     "CLOSE_APPLICATION":close_application,
     "QUIT_JARVIS":toggle_active,
