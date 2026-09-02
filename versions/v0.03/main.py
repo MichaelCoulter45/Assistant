@@ -84,8 +84,11 @@ def find_user_intent(user_verb):
     return matched_intent
 ###################################
 def dispatch(intent, user_object): 
-    if intent in command_map:
-        command_map[intent](user_object)
+    if user_object:
+        if intent in command_map:
+            command_map[intent](user_object)
+        else:
+            print(f"I don't understand what you're trying to do with {user_object}")
     else:
         print(f"I don't understand what you're trying to do.")
 ###################################
@@ -97,7 +100,8 @@ def find_path(user_object):
     home_dir = Path.home()
     likely_directories = [r"C:\Program Files (x86)", 
                             r"C:\Program Files",
-                            f"{home_dir}"
+                            f"{home_dir}",
+                            "C:\\"
                             ]
     # Search loop using likely directories and then the whole drive
     for directory in likely_directories:
@@ -108,6 +112,8 @@ def find_path(user_object):
             if user_object in files:
                 path = os.path.join(root, user_object)
                 break
+    if path:
+        print(f"Found {user_object} at: ", path)
     return path
 ###################################
 def open_application(user_object):
@@ -125,6 +131,8 @@ def close_application(user_object):
 ###################################
 def open_path(target):
     target_path = find_path(target)
+    # If directory, open it in file explorer
+    # If .exe, launch the exe
     if target_path:
         os.startfile(target_path)
     else:
@@ -134,9 +142,10 @@ def open_path(target):
 #Registry / Maps
 intent_map = { # Key-Word : Intent
     # Application Commands
-    "find":"OPEN_PATH", # <----------------------------- find should just return a path if found... Find another word for open_path. 
+    "find":"FIND_PATH", # <----------------------------- find should just return a path if found... Find another word for open_path. 
     
-    "open":"OPEN_APPLICATION",
+    "open":"OPEN_PATH",
+    
     "start":"OPEN_APPLICATION",
     "launch":"OPEN_APPLICATION",
     
@@ -151,6 +160,7 @@ intent_map = { # Key-Word : Intent
             }
 
 command_map = { # Intent : Command
+    "FIND_PATH":find_path,
     "OPEN_PATH":open_path,
     "OPEN_APPLICATION":open_application,
     "CLOSE_APPLICATION":close_application,
