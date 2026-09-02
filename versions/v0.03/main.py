@@ -101,8 +101,7 @@ def find_path(user_object):
     likely_directories = [r"C:\Program Files (x86)", 
                             r"C:\Program Files",
                             f"{home_dir}",
-                            "C:\\"
-                            ]
+                            r"C:\"]
     # Search loop using likely directories and then the whole drive
     for directory in likely_directories:
         if path:
@@ -142,7 +141,7 @@ def open_path(target):
 #Registry / Maps
 intent_map = { # Key-Word : Intent
     # Application Commands
-    "find":"FIND_PATH", # <----------------------------- find should just return a path if found... Find another word for open_path. 
+    "find":"FIND_PATH",
     
     "open":"OPEN_PATH",
     
