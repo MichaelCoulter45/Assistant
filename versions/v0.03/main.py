@@ -80,7 +80,7 @@ def process_user_input(user_input):
 ###################################
 def find_user_intent(user_verb):
     matched_intent = intent_map.get(user_verb, "Unknown Intent")
-    print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
+    # print(f"User Input: {user_verb} -> Matched Intent: {matched_intent}") #  debugging
     return matched_intent
 ###################################
 def dispatch(intent, user_object): 
@@ -101,7 +101,7 @@ def find_path(user_object):
     likely_directories = [r"C:\Program Files (x86)", 
                             r"C:\Program Files",
                             f"{home_dir}",
-                            r"C:\"]
+                            r"C:\\"]
     # Search loop using likely directories and then the whole drive
     for directory in likely_directories:
         if path:
