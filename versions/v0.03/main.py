@@ -94,7 +94,7 @@ def dispatch(intent, user_object):
 ###################################
 ###################################
 @lru_cache
-def find_path(user_object):
+def find_path(user_object): # <---------- Update to return upto many matching file paths.
     """Searches some likely directories first, then the whole C drive."""
     path = shutil.which(user_object)
     # home_dir = Path.home()
@@ -127,13 +127,18 @@ def open_application(user_object):
 def close_application(user_object):
     print(f"Closing {user_object}...")
 ###################################
-def open_target(target):
-    """ Launches the default app of the target regaurdless of file type and directory. """
+def open_target(target): # <---------------- Make this function responsable to open already found paths. Not to find new paths.
+    """
+    Currently searches the entire C:/ drive from find_path() even if found early. 
+    This is to find any and all files with the same name. 
+    Launches the default app of the target regaurdless of file type and directory. 
+    """
     target_path = find_path(target)
     
     # Setup for multiple files with the same name.
     candidates = []
     if target_path:
+        target_path = Path(target_path)
         for item in target_path.rglob(f"{target}*"):
             if item.is_dir() and item.name.lower() == target:
                 candidates.append(item)
@@ -163,12 +168,6 @@ def open_target(target):
         print("Invalid selecetion.")
         return None
     
-    
-    
-    if target_path:
-        os.startfile(target_path) #Startfile opens the file or directory with the default app for the file type.
-    else:
-        print(f"Cannot find {target}.")
 ###################################
 ###################################
 #Registry / Maps
